@@ -157,11 +157,27 @@ _aboutUsPage() {
                   builder: (context, recordProvider, _) {
                     // Display API response information
                     if (recordProvider.apiResponse != null) {
-                      final whisperText =
-                          recordProvider.apiResponse!['whisper_text'];
+                      final whisperText = recordProvider.apiResponse!['whisper_text'];
 
                       // Show notification when the result is displayed
                       _showNotification(whisperText);
+
+                      // Initialize the displayed text as an empty string
+                      String displayedText = '';
+
+                      // Function to update the displayed text one character at a time
+                      void displayCharactersOneByOne(String text) {
+                        for (int i = 0; i < text.length; i++) {
+                          Future.delayed(Duration(milliseconds: 200 * i), () {
+                            setState(() {
+                              displayedText = text.substring(0, i + 1);
+                            });
+                          });
+                        }
+                      }
+
+                      // Call function to display characters one by one
+                      displayCharactersOneByOne(whisperText);
 
                       return GestureDetector(
                         onLongPress: () {
@@ -177,25 +193,10 @@ _aboutUsPage() {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
-                              height: MediaQuery.of(context)
-                                  .size
-                                  .height, // Set a fixed height or adjust as needed
-                              child: Markdown(
-                                data: whisperText,
-                                styleSheet: MarkdownStyleSheet(
-                                  textAlign: WrapAlignment.start,
-                                  h1: const TextStyle(fontSize: 32),
-                                  h2: const TextStyle(fontSize: 24),
-                                  h3: const TextStyle(fontSize: 20),
-                                  h4: const TextStyle(fontSize: 18),
-                                  h5: const TextStyle(fontSize: 16),
-                                  h6: const TextStyle(fontSize: 14),
-                                  p: const TextStyle(fontSize: 16),
-                                  a: const TextStyle(
-                                    color: Colors.black,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
+                              height: MediaQuery.of(context).size.height,
+                              child: Text(
+                                displayedText, // Displayed text updated dynamically
+                                style: const TextStyle(fontSize: 16),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -229,6 +230,7 @@ _aboutUsPage() {
     ),
   );
 }
+
 
 void _showNotification(String message) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
